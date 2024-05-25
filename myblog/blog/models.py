@@ -1,7 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.core.validators import MaxLengthValidator
-from django.core.exceptions import ValidationError
 
 
 class BlogPost(models.Model):
