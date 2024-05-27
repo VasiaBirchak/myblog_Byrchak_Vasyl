@@ -3,6 +3,7 @@ from django.forms import ValidationError
 from django.contrib.auth.models import User
 from blog.models import BlogPost
 
+
 @pytest.mark.django_db
 class TestPostModel:
     @pytest.fixture(autouse=True)
