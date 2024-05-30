@@ -3,30 +3,6 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import AuthenticationForm
 from .forms import SignUpForm
 
-# def user_auth(request):
-#     register_form = SignUpForm()
-#     login_form = AuthenticationForm()
-
-#     if request.method == 'POST':
-#         if 'register' in request.POST:
-#             register_form = SignUpForm(request.POST)
-#             if register_form.is_valid():
-#                 register_form.save()
-#                 return redirect('index')
-#         elif 'login' in request.POST:
-#             login_form = AuthenticationForm(request, data=request.POST)
-#             if login_form.is_valid():
-#                 username = login_form.cleaned_data.get('username')
-#                 password = login_form.cleaned_data.get('password')
-#                 user = authenticate(username=username, password=password)
-#                 if user is not None:
-#                     login(request, user)
-#                     return redirect('index')
-
-#     return render(request, 'index.html', {
-#         'register_form': register_form,
-#         'login_form': login_form
-#     })
 
 def user_login(request):
     login_form = AuthenticationForm()
@@ -47,7 +23,7 @@ def user_reg(request):
         register_form = SignUpForm(request.POST)
         if register_form.is_valid():
             register_form.save()
-            return redirect('blod_index')
+            return redirect('blog_index')
     return render(request, 'blog/register.html', {'register_form': register_form})
     
 def user_logout(request):
