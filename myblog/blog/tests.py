@@ -30,4 +30,3 @@ class TestPostModel:
         post = BlogPost(title='title', body='X' * 256, author=user)
         with pytest.raises(ValidationError):
             post.full_clean()
-
