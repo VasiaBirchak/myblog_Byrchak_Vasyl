@@ -16,7 +16,8 @@ def user_login(request):
                 login(request, user)
                 return redirect('blog_index')
     return render(request, 'blog/login.html', {'login_form': login_form})
-       
+
+
 def user_reg(request):
     register_form = SignUpForm()
     if request.method == 'POST':
@@ -25,10 +26,12 @@ def user_reg(request):
             register_form.save()
             return redirect('blog_index')
     return render(request, 'blog/register.html', {'register_form': register_form})
-    
+
+
 def user_logout(request):
     logout(request)
     return redirect('blog_index')
+
 
 def blog_index(request):
     return render(request, 'blog/index.html')

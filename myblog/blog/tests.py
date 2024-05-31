@@ -10,7 +10,6 @@ class TestPostModel:
     def user(self, db):
         return User.objects.create_user(username="testuser", password="1234")
 
-
     def test_title_cannot_be_empty(self, user):
         post = BlogPost(title='', body='body', author=user)
         with pytest.raises(ValidationError):
