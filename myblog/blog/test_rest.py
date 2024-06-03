@@ -9,7 +9,11 @@ from django.contrib.auth.models import User
 class TestPostEndpoint(APITestCase):
     def setUp(self):
         self.user = User.objects.create_user(username='testuser', password='1234')
-        [BlogPost.objects.create(title='Post ' + str(x), body='Body of post ' + str(x), author=self.user) for x in range(1,4)]
+        [BlogPost.objects.create(
+            title='Post ' + str(x),
+            body='Body of post ' + str(x),
+            author=self.user
+        ) for x in range(1, 4)]
 
     def test_get_all_posts(self):
         url = reverse('post-list')
