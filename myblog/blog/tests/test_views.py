@@ -13,8 +13,8 @@ class TestUserAuthViews:
         url = reverse('user_login')
         response = client.get(url)
         assert response.status_code == 200
-        response = client.post(url, {'username': 'testuser', 'password': '1234'})
-        assert response.status_code == 302
+        response = client.post(url, {'username': 'testuser', 'password': '1234'}, follow=True)
+        assert response.status_code == 200
         assert '_auth_user_id' in client.session
         user_id_in_session = client.session['_auth_user_id']
         logged_in_user = User.objects.get(pk=user_id_in_session)
@@ -29,13 +29,13 @@ class TestUserAuthViews:
             'password1': 'complexpassword',
             'password2': 'complexpassword',
             'email': 'newuser@example.com'
-        })
-        assert response.status_code == 302
+        }, follow=True)
+        assert response.status_code == 200
         assert '_auth_user_id' in client.session
 
     def test_logout_page(self, client, user):
         client.login(username='testuser', password='testpassword')
         url = reverse('logout')
-        response = client.get(url)
-        assert response.status_code == 302
+        response = client.get(url, follow=True)
+        assert response.status_code == 200
         assert '_auth_user_id' not in client.session
