@@ -7,6 +7,7 @@ from rest_framework.response import Response
 from blog.models import BlogPost
 from blog.api.serializers import PostSerializer
 
+
 def user_login(request):
     login_form = AuthenticationForm()
     if request.method == 'POST':
