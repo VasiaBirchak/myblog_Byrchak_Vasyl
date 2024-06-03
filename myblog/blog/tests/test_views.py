@@ -13,11 +13,9 @@ class TestUserAuthViews:
         url = reverse('user_login')
         response = client.get(url)
         assert response.status_code == 200
-
         response = client.post(url, {'username': 'testuser', 'password': '1234'})
         assert response.status_code == 302
         assert '_auth_user_id' in client.session
-        
         user_id_in_session = client.session['_auth_user_id']
         logged_in_user = User.objects.get(pk=user_id_in_session)
         assert logged_in_user.username == 'testuser'
