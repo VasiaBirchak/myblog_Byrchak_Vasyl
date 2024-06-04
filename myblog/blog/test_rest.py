@@ -8,8 +8,9 @@ from django.contrib.auth.models import User
 @pytest.mark.django_db
 class TestPostEndpoint(APITestCase):
     def setUp(self):
+        super().setUp()
         self.user = User.objects.create_user(username='testuser', password='1234')
-        [BlogPost.objects.create(
+        self.posts = [BlogPost.objects.create(
             title='Post ' + str(x),
             body='Body of post ' + str(x),
             author=self.user
