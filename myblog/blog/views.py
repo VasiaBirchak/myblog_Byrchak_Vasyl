@@ -24,7 +24,12 @@ def user_reg(request):
         register_form = SignUpForm(request.POST)
         if register_form.is_valid():
             register_form.save()
-            return redirect('blog_index')
+            username = register_form.cleaned_data.get('username')
+            raw_password = register_form.cleaned_data.get('password1')
+            user = authenticate(username=username, password=raw_password)
+            if user is not None:
+                login(request, user)
+                return redirect('blog_index')
     return render(request, 'blog/register.html', {'register_form': register_form})
 
 
