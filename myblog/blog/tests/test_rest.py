@@ -1,7 +1,7 @@
 from django.urls import reverse
 import pytest
 from rest_framework.test import APITestCase
-from .models import BlogPost
+from blog.models import BlogPost
 from django.contrib.auth.models import User
 
 
@@ -17,9 +17,19 @@ class TestPostEndpoint(APITestCase):
         ) for x in range(1, 4)]
 
     def test_get_all_posts(self):
+        self.client.force_authenticate(user=self.user)
         url = reverse('post-list')
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         posts_count = len(response.data)
         database_posts_count = BlogPost.objects.count()
         self.assertEqual(posts_count, database_posts_count)
+
+    def test_create_post(self):
+        self.client.force_authenticate(user=self.user)
+        data = {'title': 'Test Post', 'body': 'Test Body'}
+        url = reverse('post-list')
+        response = self.client.post(url, data)
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(BlogPost.objects.count(), 4)
+        self.assertEqual(BlogPost.objects.get(title='Test Post').body, 'Test Body')
