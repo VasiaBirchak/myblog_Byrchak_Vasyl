@@ -2,6 +2,10 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import AuthenticationForm
 from .forms import SignUpForm
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from blog.models import BlogPost
+from blog.api.serializers import PostSerializer
 
 
 def user_login(request):
@@ -40,3 +44,10 @@ def user_logout(request):
 
 def blog_index(request):
     return render(request, 'blog/index.html')
+
+
+class PostListView(APIView):
+    def get(self, request, *args, **kwargs):
+        posts = BlogPost.objects.all()
+        serializer = PostSerializer(posts, many=True)
+        return Response(serializer.data)
