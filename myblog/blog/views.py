@@ -6,6 +6,8 @@ from rest_framework.generics import GenericAPIView
 from blog.models import BlogPost
 from blog.api.serializers import PostSerializer
 from rest_framework.mixins import ListModelMixin
+from rest_framework import status
+from rest_framework.response import Response
 
 
 def user_login(request):
@@ -52,3 +54,9 @@ class PostsViewSet(GenericAPIView, ListModelMixin):
 
     def get(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save(author=request.user)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
