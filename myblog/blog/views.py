@@ -5,7 +5,8 @@ from .forms import SignUpForm
 from rest_framework.generics import GenericAPIView
 from blog.models import BlogPost
 from blog.api.serializers import PostSerializer
-from rest_framework.mixins import ListModelMixin
+from rest_framework.mixins import ListModelMixin, RetrieveModelMixin
+from rest_framework.mixins import UpdateModelMixin, DestroyModelMixin
 from rest_framework import status
 from rest_framework.response import Response
 
@@ -60,3 +61,20 @@ class PostsViewSet(GenericAPIView, ListModelMixin):
         serializer.is_valid(raise_exception=True)
         serializer.save(author=request.user)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+class PostDetailViewSet(RetrieveModelMixin,
+                        UpdateModelMixin,
+                        DestroyModelMixin,
+                        GenericAPIView):
+    queryset = BlogPost.objects.all()
+    serializer_class = PostSerializer
+
+    def get(self, request, *args, **kwargs):
+        return self.retrieve(request, *args, **kwargs)
+
+    def patch(self, request, *args, **kwargs):
+        return self.partial_update(request, *args, **kwargs)
+
+    def delete(self, request, *args, **kwargs):
+        return self.destroy(request, *args, **kwargs)
