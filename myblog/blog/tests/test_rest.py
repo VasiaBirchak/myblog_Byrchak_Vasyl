@@ -21,7 +21,8 @@ class TestPostEndpoint(APITestCase):
         url = reverse('post-list')
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        posts_count = len(response.data)
+        self.assertIn('results', response.data)
+        posts_count = len(response.data['results'])
         database_posts_count = BlogPost.objects.count()
         self.assertEqual(posts_count, database_posts_count)
 

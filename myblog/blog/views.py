@@ -2,13 +2,9 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import AuthenticationForm
 from .forms import SignUpForm
-from rest_framework.generics import GenericAPIView
 from blog.models import BlogPost
 from blog.api.serializers import PostSerializer
-from rest_framework.mixins import ListModelMixin, RetrieveModelMixin
-from rest_framework.mixins import UpdateModelMixin, DestroyModelMixin
-from rest_framework import status
-from rest_framework.response import Response
+from rest_framework.viewsets import ModelViewSet
 
 
 def user_login(request):
@@ -49,32 +45,9 @@ def blog_index(request):
     return render(request, 'blog/index.html')
 
 
-class PostsViewSet(GenericAPIView, ListModelMixin):
+class PostViewSet(ModelViewSet):
     queryset = BlogPost.objects.all()
     serializer_class = PostSerializer
 
-    def get(self, request, *args, **kwargs):
-        return self.list(request, *args, **kwargs)
-
-    def post(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save(author=request.user)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-
-class PostDetailViewSet(RetrieveModelMixin,
-                        UpdateModelMixin,
-                        DestroyModelMixin,
-                        GenericAPIView):
-    queryset = BlogPost.objects.all()
-    serializer_class = PostSerializer
-
-    def get(self, request, *args, **kwargs):
-        return self.retrieve(request, *args, **kwargs)
-
-    def patch(self, request, *args, **kwargs):
-        return self.partial_update(request, *args, **kwargs)
-
-    def delete(self, request, *args, **kwargs):
-        return self.destroy(request, *args, **kwargs)
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)
