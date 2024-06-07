@@ -2,9 +2,11 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import AuthenticationForm
 from .forms import SignUpForm
-from blog.models import BlogPost
-from blog.api.serializers import PostSerializer
+from blog.models import BlogPost, Comment
+from blog.api.serializers import PostSerializer, CommentGETPatchSerializer
 from rest_framework.viewsets import ModelViewSet
+from rest_framework import generics
+from blog.api.serializers import CommentPostSerializer
 
 
 def user_login(request):
@@ -51,3 +53,21 @@ class PostViewSet(ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
+
+
+class CommentListCreateAPIView(generics.ListCreateAPIView):
+    queryset = Comment.objects.all()
+
+    def get_serializer_class(self):
+        if self.request.method == 'POST':
+            return CommentPostSerializer
+        return CommentGETPatchSerializer
+
+
+class CommentRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Comment.objects.all()
+
+    def get_serializer_class(self):
+        if self.request.method == 'POST':
+            return CommentPostSerializer
+        return CommentGETPatchSerializer
