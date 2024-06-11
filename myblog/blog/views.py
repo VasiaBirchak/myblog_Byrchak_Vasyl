@@ -5,7 +5,6 @@ from .forms import SignUpForm
 from blog.models import BlogPost, Comment
 from blog.api.serializers import PostSerializer, CommentGETPatchSerializer
 from rest_framework.viewsets import ModelViewSet
-from rest_framework import generics
 from blog.api.serializers import CommentPostSerializer
 
 
@@ -55,19 +54,10 @@ class PostViewSet(ModelViewSet):
         serializer.save(author=self.request.user)
 
 
-class CommentListCreateAPIView(generics.ListCreateAPIView):
+class CommentViewSet(ModelViewSet):
     queryset = Comment.objects.all()
 
     def get_serializer_class(self):
-        if self.request.method == 'POST':
-            return CommentPostSerializer
-        return CommentGETPatchSerializer
-
-
-class CommentRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Comment.objects.all()
-
-    def get_serializer_class(self):
-        if self.request.method == 'POST':
+        if self.action in ['create']:
             return CommentPostSerializer
         return CommentGETPatchSerializer
