@@ -5,10 +5,14 @@ from .forms import SignUpForm
 from rest_framework.generics import GenericAPIView
 from blog.models import BlogPost
 from blog.api.serializers import PostSerializer
-from rest_framework.mixins import ListModelMixin, RetrieveModelMixin
-from rest_framework.mixins import UpdateModelMixin, DestroyModelMixin
 from rest_framework import status
 from rest_framework.response import Response
+from rest_framework.mixins import (
+    ListModelMixin,
+    RetrieveModelMixin,
+    UpdateModelMixin,
+    DestroyModelMixin
+)
 
 
 def user_login(request):
