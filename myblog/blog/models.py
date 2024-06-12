@@ -1,15 +1,20 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.core.validators import MaxLengthValidator
+from django.utils import timezone
 
 
 class BlogPost(models.Model):
     title = models.CharField(max_length=100)
     body = models.TextField(validators=[MaxLengthValidator(255)])
     author = models.ForeignKey(User, on_delete=models.CASCADE)
-    created_at = models.DateTimeField(auto_now_add=True)
-    img = models.ImageField(upload_to='uploads/images/%Y/%m/%d/', blank=True, null=True)  # Поле для зображення
+    created_at = models.DateTimeField(default=timezone.now)
+    img = models.ImageField(upload_to='uploads/images/%Y/%m/%d/', blank=True, null=True)
     safe = models.BooleanField(default=True)
+
+    @property
+    def comments_count(self):
+        return self.comments.all().count()
 
     def __str__(self) -> str:
         return self.title
@@ -21,6 +26,6 @@ class BlogPost(models.Model):
 
 class Comment(models.Model):
     body = models.TextField(validators=[MaxLengthValidator(255)])
-    blogpost = models.ForeignKey(BlogPost, on_delete=models.CASCADE)
+    blogpost = models.ForeignKey(BlogPost, related_name='comments', on_delete=models.CASCADE)
     user = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL)
     created_at = models.DateTimeField(auto_now_add=True)
