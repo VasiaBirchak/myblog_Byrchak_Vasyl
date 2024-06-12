@@ -21,10 +21,10 @@ class CommentGETPatchSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Comment
-        fields = ('id', 'body', 'blogpost', 'blogpost_id', 'user_id')
+        fields = ('id', 'body', 'blogpost', 'blogpost_id', 'user_id', 'created_at')
 
 
 class CommentPostSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
-        fields = ('id', 'body', 'blogpost', 'blogpost_id', 'user_id')
+        fields = ('id', 'body', 'blogpost', 'blogpost_id', 'user_id', 'created_at')
