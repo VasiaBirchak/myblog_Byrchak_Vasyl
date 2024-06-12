@@ -1,69 +1,72 @@
 from django.urls import reverse
 import pytest
-from rest_framework.test import APITestCase
+from rest_framework.test import APIClient
 from blog.models import BlogPost
 from django.contrib.auth.models import User
 
 
+@pytest.fixture
+def user():
+    return User.objects.create_user(username='testuser', password='1234')
+
+
+@pytest.fixture
+def posts(user):
+    return [BlogPost.objects.create(
+        title=f'Post {x}',
+        body=f'Body of post {x}',
+        author=user
+    ) for x in range(1, 4)]
+
+
+@pytest.fixture
+def url():
+    def _url(post_id):
+        return reverse('post-detail', args=[post_id])
+    return _url
+
+
+@pytest.fixture
+def client(user):
+    client = APIClient()
+    client.force_authenticate(user=user)
+    return client
+
+
 @pytest.mark.django_db
-class TestPostEndpoint(APITestCase):
-    def setUp(self):
-        super().setUp()
-        self.user = User.objects.create_user(username='testuser', password='1234')
-        self.posts = [BlogPost.objects.create(
-            title='Post ' + str(x),
-            body='Body of post ' + str(x),
-            author=self.user
-        ) for x in range(1, 4)]
-
-    def test_get_all_posts(self):
-        self.client.force_authenticate(user=self.user)
+class TestPostEndpoint:
+    def test_get_all_posts(self, client):
         url = reverse('post-list')
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
-        self.assertIn('results', response.data)
-        posts_count = len(response.data['results'])
+        response = client.get(url)
+        assert response.status_code == 200
+        posts_count = len(response.data)
         database_posts_count = BlogPost.objects.count()
-        self.assertEqual(posts_count, database_posts_count)
+        assert posts_count == database_posts_count
 
-    def test_create_post(self):
-        self.client.force_authenticate(user=self.user)
+    def test_create_post(self, client, posts):
         data = {'title': 'Test Post', 'body': 'Test Body'}
         url = reverse('post-list')
-        response = self.client.post(url, data)
-        self.assertEqual(response.status_code, 201)
-        self.assertEqual(BlogPost.objects.count(), 4)
-        self.assertEqual(BlogPost.objects.get(title='Test Post').body, 'Test Body')
+        response = client.post(url, data)
+        assert response.status_code == 201
+        assert BlogPost.objects.count() == 4
+        assert BlogPost.objects.get(title='Test Post').body == 'Test Body'
 
 
 @pytest.mark.django_db
-class TestPostDetailEndpoint(APITestCase):
-    def setUp(self):
-        super().setUp()
-        self.user = User.objects.create_user(username='testuser', password='1234')
-        self.post = BlogPost.objects.create(
-            title='Post 1',
-            body='Body of post 1',
-            author=self.user
-        )
-        self.url = reverse('post-detail', args=[self.post.id])
+class TestPostDetailEndpoint:
+    def test_get_post(self, client, posts, url):
+        response = client.get(url(posts[0].id))
+        assert response.status_code == 200
+        assert response.data['title'] == posts[0].title
 
-    def test_get_post(self):
-        self.client.force_authenticate(user=self.user)
-        response = self.client.get(self.url)
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.data['title'], self.post.title)
-
-    def test_patch_post(self):
-        self.client.force_authenticate(user=self.user)
+    def test_patch_post(self, client, posts, url):
         data = {'title': 'Updated Title'}
-        response = self.client.patch(self.url, data)
-        self.assertEqual(response.status_code, 200)
-        self.post.refresh_from_db()
-        self.assertEqual(self.post.title, 'Updated Title')
+        response = client.patch(url(posts[0].id), data)
+        assert response.status_code == 200
+        posts[0].refresh_from_db()
+        assert posts[0].title == 'Updated Title'
 
-    def test_delete_post(self):
-        self.client.force_authenticate(user=self.user)
-        response = self.client.delete(self.url)
-        self.assertEqual(response.status_code, 204)
-        self.assertFalse(BlogPost.objects.filter(id=self.post.id).exists())
+    def test_delete_post(self, client, posts, url):
+        response = client.delete(url(posts[0].id))
+        assert response.status_code == 204
+        assert not BlogPost.objects.filter(id=posts[0].id).exists()

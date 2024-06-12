@@ -4,7 +4,15 @@ from django.contrib.auth.forms import AuthenticationForm
 from .forms import SignUpForm
 from blog.models import BlogPost
 from blog.api.serializers import PostSerializer
-from rest_framework.viewsets import ModelViewSet
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.mixins import (
+    ListModelMixin,
+    RetrieveModelMixin,
+    UpdateModelMixin,
+    DestroyModelMixin
+)
+
 
 
 def user_login(request):
