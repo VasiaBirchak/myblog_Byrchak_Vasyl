@@ -14,3 +14,9 @@ class BlogPost(models.Model):
     class Meta:
         verbose_name = 'Post'
         verbose_name_plural = 'Posts'
+
+
+class Comment(models.Model):
+    body = models.TextField(validators=[MaxLengthValidator(255)])
+    blogpost = models.ForeignKey(BlogPost, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL)

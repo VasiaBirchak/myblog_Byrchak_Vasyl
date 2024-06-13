@@ -2,16 +2,10 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import AuthenticationForm
 from .forms import SignUpForm
-from blog.models import BlogPost
-from blog.api.serializers import PostSerializer
-from rest_framework import status
-from rest_framework.response import Response
-from rest_framework.mixins import (
-    ListModelMixin,
-    RetrieveModelMixin,
-    UpdateModelMixin,
-    DestroyModelMixin
-)
+from blog.models import BlogPost, Comment
+from blog.api.serializers import PostSerializer, CommentGETPatchSerializer
+from rest_framework.viewsets import ModelViewSet
+from blog.api.serializers import CommentPostSerializer
 
 
 
@@ -59,3 +53,12 @@ class PostViewSet(ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
+
+
+class CommentViewSet(ModelViewSet):
+    queryset = Comment.objects.all()
+
+    def get_serializer_class(self):
+        if self.action in ['create']:
+            return CommentPostSerializer
+        return CommentGETPatchSerializer
