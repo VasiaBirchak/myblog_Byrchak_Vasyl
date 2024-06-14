@@ -8,6 +8,7 @@ from rest_framework.viewsets import ModelViewSet
 from blog.api.serializers import CommentPostSerializer
 
 
+
 def user_login(request):
     login_form = AuthenticationForm()
     if request.method == 'POST':
