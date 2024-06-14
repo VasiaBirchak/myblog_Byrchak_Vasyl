@@ -4,10 +4,12 @@ from blog.models import BlogPost, Comment
 
 class PostSerializer(serializers.ModelSerializer):
     author = serializers.StringRelatedField()
+    tagged_count = serializers.ReadOnlyField()
+    last_tag_date = serializers.ReadOnlyField()
 
     class Meta:
         model = BlogPost
-        fields = ('title', 'body', 'author', 'img', 'created_at')
+        fields = ('title', 'body', 'author', 'img', 'created_at', 'tagged_count', 'last_tag_date')
 
 
 class PostSummarySerializer(serializers.ModelSerializer):

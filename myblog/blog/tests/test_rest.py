@@ -1,13 +1,19 @@
 from django.urls import reverse
 import pytest
 from rest_framework.test import APIClient
-from blog.models import BlogPost
+from blog.models import BlogPost, UserTag
 from django.contrib.auth.models import User
+from django.utils.timezone import now
 
 
 @pytest.fixture
 def user():
     return User.objects.create_user(username='testuser', password='1234')
+
+
+@pytest.fixture
+def tagged_user():
+    return User.objects.create_user(username='taggeduser', password='1234')
 
 
 @pytest.fixture
@@ -50,6 +56,20 @@ class TestPostEndpoint:
         assert response.status_code == 201
         assert BlogPost.objects.count() == len(posts) + 1
         assert BlogPost.objects.get(title='Test Post').body == 'Test Body'
+
+    def test_tagged_count(self, client, posts, tagged_user):
+        UserTag.objects.create(user=tagged_user, post=posts[0])
+        url = reverse('post-detail', args=[posts[0].id])
+        response = client.get(url)
+        assert response.status_code == 200
+        assert response.data['tagged_count'] == 1
+
+    def test_last_tag_date(self, client, posts, tagged_user):
+        tag = UserTag.objects.create(user=tagged_user, post=posts[0], created_at=now())
+        url = reverse('post-detail', args=[posts[0].id])
+        response = client.get(url)
+        assert response.status_code == 200
+        assert response.data['last_tag_date'] == tag.created_at.isoformat()
 
 
 @pytest.mark.django_db
