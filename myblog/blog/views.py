@@ -2,12 +2,16 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import AuthenticationForm
 from .forms import SignUpForm
-from blog.models import BlogPost, Comment
-from blog.api.serializers import PostSerializer, CommentGETPatchSerializer, PostCreateSerializer
+from blog.models import BlogPost, Comment, UserTag
+from blog.api.serializers import (
+    PostSerializer,
+    CommentGETPatchSerializer,
+    PostCreateSerializer,
+    PostSummarySerializer
+)
 from rest_framework.viewsets import ModelViewSet
 from blog.api.serializers import CommentPostSerializer
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.decorators import action
 
 
 def user_login(request):
@@ -57,16 +61,21 @@ class PostViewSet(ModelViewSet):
         serializer.save(author=self.request.user)
 
     def get_serializer_class(self):
+        if self.action == 'my_tags':
+            return PostSummarySerializer
         if self.action in ['create', 'update', 'partial_update']:
             return PostCreateSerializer
         return PostSerializer
 
-    @action(detail=False, methods=['get'], url_path='my-tags')
-    def my_tags(self, request):
-        user = request.user
-        tagged_posts = BlogPost.objects.filter(tagged_users=user)
-        self.queryset = tagged_posts
-        return self.list(self, request)
+    def get_queryset(self):
+        if self.action == 'my_tags':
+            user_tags = UserTag.objects.filter(user=self.request.user)
+            tagged_posts = [user_tag.post for user_tag in user_tags]
+            return tagged_posts
+        return super().get_queryset()
+
+    def my_tags(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
 
 
 class CommentViewSet(ModelViewSet):
