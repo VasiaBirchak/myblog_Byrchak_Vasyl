@@ -37,3 +37,8 @@ class TestCommentModel:
         comment = Comment(body='x' * 255, blogpost=None, user=self.user)
         with pytest.raises(ValidationError):
             comment.full_clean()
+
+    def test_comments_count(self):
+        Comment.objects.create(blogpost=self.post, body='Comment 1', user=self.user)
+        Comment.objects.create(blogpost=self.post, body='Comment 2', user=self.user)
+        assert self.post.comments_count == 2
