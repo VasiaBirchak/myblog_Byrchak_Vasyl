@@ -3,9 +3,11 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import AuthenticationForm
 from .forms import SignUpForm
 from blog.models import BlogPost, Comment
-from blog.api.serializers import PostSerializer, CommentGETPatchSerializer
+from blog.api.serializers import PostSerializer, CommentGETPatchSerializer, PostCreateSerializer
 from rest_framework.viewsets import ModelViewSet
 from blog.api.serializers import CommentPostSerializer
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import action
 
 
 def user_login(request):
@@ -49,9 +51,22 @@ def blog_index(request):
 class PostViewSet(ModelViewSet):
     queryset = BlogPost.objects.all()
     serializer_class = PostSerializer
+    permission_classes = [IsAuthenticated]
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
+
+    def get_serializer_class(self):
+        if self.action in ['create', 'update', 'partial_update']:
+            return PostCreateSerializer
+        return PostSerializer
+
+    @action(detail=False, methods=['get'], url_path='my-tags')
+    def my_tags(self, request):
+        user = request.user
+        tagged_posts = BlogPost.objects.filter(tagged_users=user)
+        self.queryset = tagged_posts
+        return self.list(self, request)
 
 
 class CommentViewSet(ModelViewSet):

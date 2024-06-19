@@ -11,7 +11,7 @@ class BlogPost(models.Model):
     created_at = models.DateTimeField(default=timezone.now)
     img = models.ImageField(upload_to='uploads/images/%Y/%m/%d/', blank=True, null=True)
     safe = models.BooleanField(default=True)
-    tagged_users = models.ManyToManyField(User, through='UserTag', related_name='tagged_posts')
+    # tagged_users = models.ManyToManyField(User, through='UserTag', related_name='tagged_posts')
 
     @property
     def tagged_count(self):
@@ -42,6 +42,6 @@ class Comment(models.Model):
 
 
 class UserTag(models.Model):
+    post = models.ForeignKey(BlogPost, related_name='tagged_users', on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    post = models.ForeignKey(BlogPost, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
