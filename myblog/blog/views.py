@@ -12,6 +12,8 @@ from blog.api.serializers import (
 from rest_framework.viewsets import ModelViewSet
 from blog.api.serializers import CommentPostSerializer
 from rest_framework.permissions import IsAuthenticated
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.filters import OrderingFilter, SearchFilter
 
 
 def user_login(request):
@@ -56,6 +58,10 @@ class PostViewSet(ModelViewSet):
     queryset = BlogPost.objects.all()
     serializer_class = PostSerializer
     permission_classes = [IsAuthenticated]
+    filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]
+    filterset_fields = ['author__username', 'safe']
+    ordering_fields = ['author', 'safe']
+    search_fields = ['title', 'body', 'author__username']
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
