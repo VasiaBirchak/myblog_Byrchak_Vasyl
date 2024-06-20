@@ -9,10 +9,17 @@ class UserTagSerializer(serializers.ModelSerializer):
         fields = ['user', 'created_at']
 
 
+class LikeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Like
+        fields = ['user', 'content_type', 'object_id', 'created_at']
+
+
 class PostSerializer(serializers.ModelSerializer):
     author = serializers.StringRelatedField()
     last_tag_date = serializers.SerializerMethodField()
     tagged_users = UserTagSerializer(many=True, read_only=True)
+    likes = LikeSerializer(many=True, read_only=True)
 
     class Meta:
         model = BlogPost
@@ -23,7 +30,8 @@ class PostSerializer(serializers.ModelSerializer):
                   'created_at',
                   'tagged_users',
                   'tagged_count',
-                  'last_tag_date')
+                  'last_tag_date',
+                  'likes')
 
     def get_last_tag_date(self, obj):
         last_tag = UserTag.objects.filter(post=obj).order_by('-created_at').first()
@@ -63,18 +71,16 @@ class PostSummarySerializer(serializers.ModelSerializer):
 
 class CommentGETPatchSerializer(serializers.ModelSerializer):
     blogpost = PostSummarySerializer()
+    likes = LikeSerializer(many=True, read_only=True)
 
     class Meta:
         model = Comment
-        fields = ('id', 'body', 'blogpost', 'blogpost_id', 'user_id', 'created_at')
+        fields = ('id', 'body', 'blogpost', 'blogpost_id', 'user_id', 'created_at', 'likes')
 
 
 class CommentPostSerializer(serializers.ModelSerializer):
+    likes = LikeSerializer(many=True, read_only=True)
+
     class Meta:
         model = Comment
-        fields = ('id', 'body', 'blogpost', 'blogpost_id', 'user_id', 'created_at')
-
-class LikeSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Like
-        fields = ['user', 'content_type', 'object_id', 'created_at']
+        fields = ('id', 'body', 'blogpost', 'blogpost_id', 'user_id', 'created_at', 'likes')

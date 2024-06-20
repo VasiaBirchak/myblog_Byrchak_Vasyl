@@ -91,7 +91,9 @@ class PostViewSet(ModelViewSet):
         post = self.get_object()
         user = request.user
         content_type = ContentType.objects.get_for_model(post)
-        like, created = Like.objects.get_or_create(user=user, content_type=content_type, object_id=post.id)
+        like, created = Like.objects.get_or_create(user=user,
+                                                   content_type=content_type,
+                                                   object_id=post.id)
         if created:
             return Response({'status': 'liked'}, status=status.HTTP_201_CREATED)
         return Response({'status': 'already liked'}, status=status.HTTP_200_OK)
@@ -118,7 +120,9 @@ class CommentViewSet(ModelViewSet):
         post = self.get_object()
         user = request.user
         content_type = ContentType.objects.get_for_model(post)
-        like, created = Like.objects.get_or_create(user=user, content_type=content_type, object_id=post.id)
+        like, created = Like.objects.get_or_create(user=user,
+                                                   content_type=content_type,
+                                                   object_id=post.id)
         if created:
             return Response({'status': 'liked'}, status=status.HTTP_201_CREATED)
         return Response({'status': 'already liked'}, status=status.HTTP_200_OK)

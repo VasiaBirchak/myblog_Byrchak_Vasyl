@@ -15,7 +15,9 @@ class Like(models.Model):
 
     class Meta:
         constraints = [
-            models.UniqueConstraint(fields=['user', 'content_type', 'object_id'], name='unique_like')
+            models.UniqueConstraint(fields=['user',
+                                            'content_type',
+                                            'object_id'], name='unique_like')
         ]
 
 
