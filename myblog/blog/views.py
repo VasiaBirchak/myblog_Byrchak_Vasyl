@@ -86,7 +86,7 @@ class PostViewSet(ModelViewSet):
     def my_tags(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)
 
-    @action(detail=True, methods=['get'], permission_classes=[IsAuthenticated])
+    @action(detail=True, methods=['post', 'get'], permission_classes=[IsAuthenticated])
     def like(self, request, pk=None):
         post = self.get_object()
         user = request.user
@@ -98,7 +98,7 @@ class PostViewSet(ModelViewSet):
             return Response({'status': 'liked'}, status=status.HTTP_201_CREATED)
         return Response({'status': 'already liked'}, status=status.HTTP_200_OK)
 
-    @action(detail=True, methods=['get'], permission_classes=[IsAuthenticated])
+    @action(detail=True, methods=['post', 'get'], permission_classes=[IsAuthenticated])
     def unlike(self, request, pk=None):
         post = self.get_object()
         user = request.user
@@ -115,7 +115,7 @@ class CommentViewSet(ModelViewSet):
             return CommentPostSerializer
         return CommentGETPatchSerializer
 
-    @action(detail=True, methods=['get'], permission_classes=[IsAuthenticated])
+    @action(detail=True, methods=['post', 'get'], permission_classes=[IsAuthenticated])
     def like(self, request, pk=None):
         post = self.get_object()
         user = request.user
@@ -127,7 +127,7 @@ class CommentViewSet(ModelViewSet):
             return Response({'status': 'liked'}, status=status.HTTP_201_CREATED)
         return Response({'status': 'already liked'}, status=status.HTTP_200_OK)
 
-    @action(detail=True, methods=['get'], permission_classes=[IsAuthenticated])
+    @action(detail=True, methods=['post', 'get'], permission_classes=[IsAuthenticated])
     def unlike(self, request, pk=None):
         post = self.get_object()
         user = request.user
