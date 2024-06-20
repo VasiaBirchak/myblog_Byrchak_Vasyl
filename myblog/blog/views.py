@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import AuthenticationForm
 from .forms import SignUpForm
-from blog.models import BlogPost, Comment, UserTag
+from blog.models import BlogPost, Comment
 from blog.api.serializers import (
     PostSerializer,
     CommentGETPatchSerializer,
@@ -74,11 +74,10 @@ class PostViewSet(ModelViewSet):
         return PostSerializer
 
     def get_queryset(self):
+        queryset = super().get_queryset()
         if self.action == 'my_tags':
-            user_tags = UserTag.objects.filter(user=self.request.user)
-            tagged_posts = [user_tag.post for user_tag in user_tags]
-            return tagged_posts
-        return super().get_queryset()
+            return queryset.filter(tagged_users__user=self.request.user)
+        return queryset
 
     def my_tags(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)
