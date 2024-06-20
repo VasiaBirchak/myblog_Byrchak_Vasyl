@@ -11,7 +11,6 @@ class BlogPost(models.Model):
     created_at = models.DateTimeField(default=timezone.now)
     img = models.ImageField(upload_to='uploads/images/%Y/%m/%d/', blank=True, null=True)
     safe = models.BooleanField(default=True)
-    # tagged_users = models.ManyToManyField(User, through='UserTag', related_name='tagged_posts')
 
     @property
     def tagged_count(self):

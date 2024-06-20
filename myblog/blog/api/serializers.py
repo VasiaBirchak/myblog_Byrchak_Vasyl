@@ -49,7 +49,7 @@ class PostCreateSerializer(serializers.ModelSerializer):
         tagged_users = validated_data.pop('tagged_users', None)
         instance = super().update(instance, validated_data)
         if tagged_users is not None:
-            instance.tagged_users.all().delete()  # видалити старі теги
+            instance.tagged_users.all().delete()
             for user in tagged_users:
                 UserTag.objects.create(post=instance, user=user)
         return instance
