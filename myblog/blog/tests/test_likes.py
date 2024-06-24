@@ -36,6 +36,8 @@ def test_like_post(client, test_post):
 
 @pytest.mark.django_db
 def test_unlike_post(client, test_post):
+    client.post(f'/blog/api/post/{test_post.id}/like/')
+    assert Like.objects.filter(content_type__model='blogpost', object_id=test_post.id).exists()
     response = client.post(f'/blog/api/post/{test_post.id}/unlike/')
     assert response.status_code == status.HTTP_200_OK
     assert Like.objects.filter(content_type__model='blogpost', object_id=test_post.id).count() == 0
@@ -51,6 +53,8 @@ def test_like_comment(client, test_comment):
 
 @pytest.mark.django_db
 def test_unlike_comment(client, test_comment):
+    client.post(f'/blog/api/comments/{test_comment.id}/like/')
+    assert Like.objects.filter(content_type__model='comment', object_id=test_comment.id).exists()
     response = client.post(f'/blog/api/comments/{test_comment.id}/unlike/')
     assert response.status_code == status.HTTP_200_OK
     assert Like.objects.filter(content_type__model='comment',

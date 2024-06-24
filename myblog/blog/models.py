@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from django.core.validators import MaxLengthValidator
 from django.utils import timezone
 from django.contrib.contenttypes.models import ContentType
-from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
+from django.contrib.contenttypes.fields import GenericForeignKey
 
 
 class Like(models.Model):
@@ -28,7 +28,7 @@ class BlogPost(models.Model):
     created_at = models.DateTimeField(default=timezone.now)
     img = models.ImageField(upload_to='uploads/images/%Y/%m/%d/', blank=True, null=True)
     safe = models.BooleanField(default=True)
-    likes = GenericRelation(Like)
+    likes_count = models.PositiveIntegerField(default=0)
 
     @property
     def tagged_count(self):
@@ -56,7 +56,7 @@ class Comment(models.Model):
     blogpost = models.ForeignKey(BlogPost, related_name='comments', on_delete=models.CASCADE)
     user = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL)
     created_at = models.DateTimeField(auto_now_add=True)
-    likes = GenericRelation(Like)
+    likes_count = models.PositiveIntegerField(default=0)
 
 
 class UserTag(models.Model):
