@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import AuthenticationForm
 from .forms import SignUpForm
-from blog.models import BlogPost, Comment, Like
+from blog.models import BlogPost, Comment
 from blog.api.serializers import (
     PostSerializer,
     CommentGETPatchSerializer,
@@ -15,10 +15,6 @@ from rest_framework.permissions import IsAuthenticated
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.decorators import action
-from rest_framework.response import Response
-from rest_framework import status
-from django.contrib.contenttypes.models import ContentType
-from django.db.models import F
 from blog.mixins import LikeModelMixin
 
 
@@ -99,6 +95,7 @@ class PostViewSet(LikeModelMixin, ModelViewSet):
         post = self.get_object()
         response = self.unlike_action(post, request.user)
         return response
+
 
 class CommentViewSet(LikeModelMixin, ModelViewSet):
     queryset = Comment.objects.all()

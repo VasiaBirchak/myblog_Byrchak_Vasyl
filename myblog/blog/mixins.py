@@ -4,6 +4,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.db.models import F
 from blog.models import Like
 
+
 class LikeModelMixin:
     @staticmethod
     def like_action(obj, user):
