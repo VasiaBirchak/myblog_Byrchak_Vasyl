@@ -45,11 +45,10 @@ class BlogPost(models.Model):
     @property
     def likes_count(self):
         content_type = ContentType.objects.get_for_model(self)
-        return UserTag.objects.filter(content_type=content_type, object_id=self.id).count()
+        return Like.objects.filter(content_type=content_type, object_id=self.id).count()
 
     def __str__(self) -> str:
         return self.title
-
 
     class Meta:
         verbose_name = 'Post'
@@ -65,7 +64,7 @@ class Comment(models.Model):
     @property
     def likes_count(self):
         content_type = ContentType.objects.get_for_model(self)
-        return UserTag.objects.filter(content_type=content_type, object_id=self.id).count()
+        return Like.objects.filter(content_type=content_type, object_id=self.id).count()
 
 
 class UserTag(models.Model):
