@@ -16,6 +16,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.decorators import action
 from blog.mixins import LikeModelMixin
+from .filters import PostFilter, CommentFilter
 
 
 def user_login(request):
@@ -57,10 +58,11 @@ def blog_index(request):
 
 
 class PostViewSet(LikeModelMixin, ModelViewSet):
-    queryset = BlogPost.objects.all()
+    queryset = BlogPost.objects.all().order_by('-created_at')
     serializer_class = PostSerializer
     permission_classes = [IsAuthenticated]
     filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]
+    filterset_class = PostFilter
     filterset_fields = ['author__username', 'safe']
     ordering_fields = ['author', 'safe']
     search_fields = ['title', 'body', 'author__username']
@@ -98,7 +100,9 @@ class PostViewSet(LikeModelMixin, ModelViewSet):
 
 
 class CommentViewSet(LikeModelMixin, ModelViewSet):
-    queryset = Comment.objects.all()
+    queryset = Comment.objects.all().order_by('-created_at')
+    filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]
+    filterset_class = CommentFilter
 
     def get_serializer_class(self):
         if self.action in ['create']:
