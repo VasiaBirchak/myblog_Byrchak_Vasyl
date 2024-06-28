@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from blog.models import BlogPost, Comment, UserTag, Like
 from django.contrib.auth.models import User
+from django.contrib.contenttypes.models import ContentType
 
 
 class UserTagSerializer(serializers.ModelSerializer):
@@ -10,12 +11,11 @@ class UserTagSerializer(serializers.ModelSerializer):
 
 
 class LikeSerializer(serializers.ModelSerializer):
-    user = serializers.ReadOnlyField(source='user.username')
-    content_type = serializers.ReadOnlyField(source='content_type.model')
+    content_type = serializers.PrimaryKeyRelatedField(queryset=ContentType.objects.all())
 
     class Meta:
         model = Like
-        fields = ['user', 'content_type', 'object_id', 'created_at']
+        fields = ['id', 'user', 'content_type', 'object_id', 'content_object', 'created_at']
 
 
 class PostSerializer(serializers.ModelSerializer):

@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import AuthenticationForm
 from .forms import SignUpForm
-from blog.models import BlogPost, Comment, Like
+from blog.models import BlogPost, Comment
 from blog.api.serializers import (
     PostSerializer,
     CommentGETPatchSerializer,
@@ -15,10 +15,8 @@ from rest_framework.permissions import IsAuthenticated
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.decorators import action
-from rest_framework.response import Response
-from rest_framework import status
-from django.contrib.contenttypes.models import ContentType
-from django.db.models import F
+from blog.mixins import LikeModelMixin
+from .filters import PostFilter, CommentFilter
 
 
 def user_login(request):
@@ -59,11 +57,12 @@ def blog_index(request):
     return render(request, 'blog/index.html')
 
 
-class PostViewSet(ModelViewSet):
-    queryset = BlogPost.objects.all()
+class PostViewSet(LikeModelMixin, ModelViewSet):
+    queryset = BlogPost.objects.all().order_by('-created_at')
     serializer_class = PostSerializer
     permission_classes = [IsAuthenticated]
     filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]
+    filterset_class = PostFilter
     filterset_fields = ['author__username', 'safe']
     ordering_fields = ['author', 'safe']
     search_fields = ['title', 'body', 'author__username']
@@ -90,30 +89,20 @@ class PostViewSet(ModelViewSet):
     @action(detail=True, methods=['post'], permission_classes=[IsAuthenticated])
     def like(self, request, pk=None):
         post = self.get_object()
-        user = request.user
-        content_type = ContentType.objects.get_for_model(post)
-        like, created = Like.objects.get_or_create(user=user,
-                                                   content_type=content_type,
-                                                   object_id=post.id)
-        if created:
-            post.likes_count = F('likes_count') + 1
-            post.save()
-            return Response({'status': 'liked'}, status=status.HTTP_201_CREATED)
-        return Response({'status': 'already liked'}, status=status.HTTP_200_OK)
+        response = self.like_action(post, request.user)
+        return response
 
     @action(detail=True, methods=['post'], permission_classes=[IsAuthenticated])
     def unlike(self, request, pk=None):
         post = self.get_object()
-        user = request.user
-        content_type = ContentType.objects.get_for_model(post)
-        Like.objects.filter(user=user, content_type=content_type, object_id=post.id).delete()
-        post.likes_count = F('likes_count') - 1
-        post.save()
-        return Response({'status': 'unliked'}, status=status.HTTP_200_OK)
+        response = self.unlike_action(post, request.user)
+        return response
 
 
-class CommentViewSet(ModelViewSet):
-    queryset = Comment.objects.all()
+class CommentViewSet(LikeModelMixin, ModelViewSet):
+    queryset = Comment.objects.all().order_by('-created_at')
+    filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]
+    filterset_class = CommentFilter
 
     def get_serializer_class(self):
         if self.action in ['create']:
@@ -123,23 +112,11 @@ class CommentViewSet(ModelViewSet):
     @action(detail=True, methods=['post'], permission_classes=[IsAuthenticated])
     def like(self, request, pk=None):
         comment = self.get_object()
-        user = request.user
-        content_type = ContentType.objects.get_for_model(comment)
-        like, created = Like.objects.get_or_create(user=user,
-                                                   content_type=content_type,
-                                                   object_id=comment.id)
-        if created:
-            comment.likes_count = F('likes_count') + 1
-            comment.save()
-            return Response({'status': 'liked'}, status=status.HTTP_201_CREATED)
-        return Response({'status': 'already liked'}, status=status.HTTP_200_OK)
+        response = self.like_action(comment, request.user)
+        return response
 
     @action(detail=True, methods=['post'], permission_classes=[IsAuthenticated])
     def unlike(self, request, pk=None):
         comment = self.get_object()
-        user = request.user
-        content_type = ContentType.objects.get_for_model(comment)
-        Like.objects.filter(user=user, content_type=content_type, object_id=comment.id).delete()
-        comment.likes_count = F('likes_count') - 1
-        comment.save()
-        return Response({'status': 'unliked'}, status=status.HTTP_200_OK)
+        response = self.unlike_action(comment, request.user)
+        return response

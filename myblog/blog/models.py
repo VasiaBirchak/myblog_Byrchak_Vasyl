@@ -28,7 +28,6 @@ class BlogPost(models.Model):
     created_at = models.DateTimeField(default=timezone.now)
     img = models.ImageField(upload_to='uploads/images/%Y/%m/%d/', blank=True, null=True)
     safe = models.BooleanField(default=True)
-    likes_count = models.PositiveIntegerField(default=0)
 
     @property
     def tagged_count(self):
@@ -43,6 +42,11 @@ class BlogPost(models.Model):
     def comments_count(self):
         return self.comments.all().count()
 
+    @property
+    def likes_count(self):
+        content_type = ContentType.objects.get_for_model(self)
+        return Like.objects.filter(content_type=content_type, object_id=self.id).count()
+
     def __str__(self) -> str:
         return self.title
 
@@ -56,7 +60,11 @@ class Comment(models.Model):
     blogpost = models.ForeignKey(BlogPost, related_name='comments', on_delete=models.CASCADE)
     user = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL)
     created_at = models.DateTimeField(auto_now_add=True)
-    likes_count = models.PositiveIntegerField(default=0)
+
+    @property
+    def likes_count(self):
+        content_type = ContentType.objects.get_for_model(self)
+        return Like.objects.filter(content_type=content_type, object_id=self.id).count()
 
 
 class UserTag(models.Model):
