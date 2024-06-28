@@ -1,4 +1,3 @@
-# tests/test_custom_filters.py
 import pytest
 from django.contrib.auth.models import User
 from blog.models import BlogPost, Comment
